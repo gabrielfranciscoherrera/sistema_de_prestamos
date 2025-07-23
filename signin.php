@@ -1,6 +1,7 @@
 <?php
 include_once "classes/Employee.php";
 include_once "libs/Session.php";
+ob_start();
 Session::checkLogin();
 $emp = new Employee();
 ?>
@@ -87,3 +88,6 @@ $emp = new Employee();
     </div>
   </body>
 </html>
+<?php
+ob_end_flush();
+?>
