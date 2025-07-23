@@ -63,37 +63,40 @@ class Employee
 		}
 		
 	}
-	// //users login
+        // users login with prepared statement
         public function employeeLogin($data){
-                $email = $data['email'];
-                $email = mysqli_real_escape_string($this->db->link, $email);
-                $pass = $this->fm->validation(md5($data['pass']));
-            $pass = mysqli_real_escape_string($this->db->link, $pass);
-            if (empty($email) or empty($pass))
-                {
-                        $msg = "<span class='text-danger'>Fields must not be empty !</span>";
-                        return $msg;
-                }else{
-                        $sql = "SELECT * FROM tbl_user WHERE email='$email' AND pass='$pass'";
-                        $result = $this->db->select($sql);
-                        if ($result === false && !empty($this->db->error)) {
-                                $msg = "<span class='text-danger'>".$this->db->error."</span>";
-                                return $msg;
-                        }
-                        if ($result != false) {
-                                $value = $result->fetch_assoc();
-                                Session::set("userlogin",true);
-                                Session::set("user_id",$value['id']);
-                                Session::set("name",$value['name']);
-				Session::set("designation",$value['designation']);
-				Session::set("role",$value['role']);
-				header("Location: index.php");
-			}else{
-				$msg = "<span class='text-danger'>Email or password not matched !</span>";
-				return $msg;
-			}
-		}
-	}
+                $email = $this->fm->validation($data['email']);
+                $pass  = $this->fm->validation($data['pass']);
+
+                if (empty($email) || empty($pass)) {
+                        return "<span class='text-danger'>Fields must not be empty !</span>";
+                }
+
+                // hash password as stored in DB
+                $hashed = md5($pass);
+
+                // use prepared statement to prevent SQL injection
+                $stmt = $this->db->link->prepare("SELECT id, name, designation, role FROM tbl_user WHERE email = ? AND pass = ?");
+                if (!$stmt) {
+                        return "<span class='text-danger'>".$this->db->link->error."</span>";
+                }
+                $stmt->bind_param('ss', $email, $hashed);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result && $result->num_rows === 1) {
+                        $value = $result->fetch_assoc();
+                        Session::set("userlogin", true);
+                        Session::set("user_id", $value['id']);
+                        Session::set("name", $value['name']);
+                        Session::set("designation", $value['designation']);
+                        Session::set("role", $value['role']);
+                        header("Location: index.php");
+                        exit();
+                }
+
+                return "<span class='text-danger'>Email or password not matched !</span>";
+        }
 
 	public function addBorrower($data, $file)
 	{
