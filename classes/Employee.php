@@ -64,23 +64,27 @@ class Employee
 		
 	}
 	// //users login
-	public function employeeLogin($data){
-		$email = $data['email'];
-		$email = mysqli_real_escape_string($this->db->link, $email);
-		$pass = $this->fm->validation(md5($data['pass']));
-	    $pass = mysqli_real_escape_string($this->db->link, $pass);
-	    if (empty($email) or empty($pass))
-		{
-			$msg = "<span class='text-danger'>Fields must not be empty !</span>";
-			return $msg;
-		}else{
-			$sql = "SELECT * FROM tbl_user WHERE email='$email' AND pass='$pass'";
-			$result = $this->db->select($sql);
-			if ($result != false) {
-				$value = $result->fetch_assoc();
-				Session::set("userlogin",true);
-				Session::set("user_id",$value['id']);
-				Session::set("name",$value['name']);
+        public function employeeLogin($data){
+                $email = $data['email'];
+                $email = mysqli_real_escape_string($this->db->link, $email);
+                $pass = $this->fm->validation(md5($data['pass']));
+            $pass = mysqli_real_escape_string($this->db->link, $pass);
+            if (empty($email) or empty($pass))
+                {
+                        $msg = "<span class='text-danger'>Fields must not be empty !</span>";
+                        return $msg;
+                }else{
+                        $sql = "SELECT * FROM tbl_user WHERE email='$email' AND pass='$pass'";
+                        $result = $this->db->select($sql);
+                        if ($result === false && !empty($this->db->error)) {
+                                $msg = "<span class='text-danger'>".$this->db->error."</span>";
+                                return $msg;
+                        }
+                        if ($result != false) {
+                                $value = $result->fetch_assoc();
+                                Session::set("userlogin",true);
+                                Session::set("user_id",$value['id']);
+                                Session::set("name",$value['name']);
 				Session::set("designation",$value['designation']);
 				Session::set("role",$value['role']);
 				header("Location: index.php");
