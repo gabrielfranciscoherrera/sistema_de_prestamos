@@ -11,11 +11,16 @@ class Employee
 	private $db;
 	private $fm;
 
-	function __construct()
-	{
-		$this->db = new CrudOperation();
-		$this->fm = new Format();
-	}
+        function __construct()
+        {
+                $this->db = new CrudOperation();
+                $this->fm = new Format();
+        }
+
+        public function hasConnection()
+        {
+                return $this->db->isConnected();
+        }
 
 	public function employeeReg($data){
 		$name = $this->fm->validation($data['name']);
@@ -70,6 +75,11 @@ class Employee
 
                 if (empty($email) || empty($pass)) {
                         return "<span class='text-danger'>Fields must not be empty !</span>";
+                }
+
+                // verify that database connection exists
+                if (!$this->db->isConnected()) {
+                        return "<span class='text-danger'>Database connection failed.</span>";
                 }
 
                 // hash password as stored in DB

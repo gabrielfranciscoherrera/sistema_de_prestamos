@@ -12,11 +12,15 @@ Class CrudOperation{
 	 public $dbname = DB_NAME;
 	 
 	 public $link;
-	 public $error;
+         public $error;
 	 
-	 public function __construct(){
-	  $this->connectDB();
-	 }
+         public function __construct(){
+          $this->connectDB();
+         }
+
+         public function isConnected(){
+                return ($this->link instanceof mysqli);
+         }
 	 
        private function connectDB(){
                 try {

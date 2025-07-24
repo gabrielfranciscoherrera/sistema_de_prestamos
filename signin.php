@@ -24,10 +24,12 @@ $emp = new Employee();
   </head>
 
   <body>
-      <?php 
-        if (isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+      <?php
+        if (!$emp->hasConnection()) {
+          $inserted = "<span class='text-danger'>Database connection failed.</span>";
+        } elseif (isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
           $inserted = $emp->employeeLogin($_POST);
-        } 
+        }
       ?>
   <div class="container">
     <form class="form-signin" action="" method="POST">
